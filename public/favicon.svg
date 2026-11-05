@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <rect width="64" height="64" rx="16" fill="#0B0F19"/>
+  <circle cx="32" cy="32" r="22" stroke="#22c55e" stroke-width="3" stroke-dasharray="6 4"/>
+  <circle cx="32" cy="32" r="14" fill="url(#lens_gradient)"/>
+  <circle cx="28" cy="28" r="4" fill="white" opacity="0.6"/>
+  <path d="M44 44L52 52" stroke="#06b6d4" stroke-width="4" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="lens_gradient" x1="18" y1="18" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#06b6d4"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+</svg>

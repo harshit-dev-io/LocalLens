@@ -1,0 +1,16 @@
+{
+  "name": "LocalLens V2",
+  "short_name": "LocalLens",
+  "description": "Two-Sided Hyper-Local Context Engine powered by Mini-RAG and Gemini 2.5 Flash",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#0B0F19",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
