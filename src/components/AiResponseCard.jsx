@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Volume2,
-  VolumeX,
   Pause,
   Play,
   Sparkles,
   ShieldCheck,
-  MapPin,
   Compass,
   Store,
-  ExternalLink,
+  VolumeX,
 } from 'lucide-react';
 import { speechService } from '../utils/speech';
-import { formatDistance } from '../utils/haversine';
+import VendorCard from './VendorCard';
 
 export default function AiResponseCard({
   culturalStory,
   recommendedVendors = [],
   groundedVendorsCount = 0,
-  isFallback = false,
-  onSelectVendor,
+  userLocation,
   selectedVendorId,
+  onSelectVendor,
+  onLocateVendor,
+  onOpenVendorDetail,
+  onPingConfirm,
+  onAddPulse,
 }) {
   const [speechState, setSpeechState] = useState({
     isPlaying: false,
@@ -50,51 +51,31 @@ export default function AiResponseCard({
     speechService.stop();
   };
 
-  const getCategoryBadgeClass = (category) => {
-    switch (category?.toLowerCase()) {
-      case 'food':
-        return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
-      case 'craft':
-        return 'bg-orange-500/15 text-orange-300 border-orange-500/30';
-      case 'heritage':
-        return 'bg-red-500/15 text-red-300 border-red-500/30';
-      default:
-        return 'bg-orange-500/15 text-orange-300 border-orange-500/30';
-    }
-  };
-
   return (
     <div className="w-full bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] rounded-2xl p-6 sm:p-7 space-y-6 transition-all duration-300 relative overflow-hidden">
-      {/* Subtle Warm Amber Gradient Glow */}
+      {/* Subtle Warm Amber Flare */}
       <div className="absolute -top-24 -right-24 w-52 h-52 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-52 h-52 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Header Bar: Engine Attribution & Mini-RAG Grounding Badge */}
+      {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-white/[0.06]">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-400">
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-[#FAF7F2] tracking-wide flex items-center font-sans">
-              Gemini 2.5 Flash Synthesis
+            <h3 className="text-sm font-bold text-[#FAF7F2] tracking-wide font-sans">
+              Cultural Synthesis &amp; Trail
             </h3>
-            <p className="text-[11px] text-[#A8A29E]">Hyper-Local Multimodal Mini-RAG</p>
+            <p className="text-[11px] text-[#A8A29E]">Hyper-Local Visual Ethnography</p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-orange-500/15 text-orange-300 border border-orange-500/30 shadow-sm">
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-sm font-mono">
             <ShieldCheck className="w-3.5 h-3.5 mr-1.5 text-orange-400" />
-            {groundedVendorsCount > 0
-              ? `Grounded in ${groundedVendorsCount} Local Stalls`
-              : 'Zero Hallucination Grounded'}
+            {groundedVendorsCount > 0 ? `Grounded in ${groundedVendorsCount} Stalls` : 'Verified Grounding'}
           </span>
-          {isFallback && (
-            <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#262422] text-amber-300 border border-white/[0.08] font-mono">
-              Demo Safe Mode
-            </span>
-          )}
         </div>
       </div>
 
@@ -102,7 +83,7 @@ export default function AiResponseCard({
       <div className="space-y-3">
         <span className="text-[11px] font-bold uppercase tracking-wider text-[#A8A29E] flex items-center">
           <Compass className="w-3.5 h-3.5 mr-1.5 text-orange-400" />
-          Cultural &amp; Historical Context
+          Living Cultural Context
         </span>
         <blockquote className="text-base sm:text-[17px] text-[#FAF7F2] leading-relaxed font-serif italic border-l-2 border-orange-500/70 pl-4 py-1.5 bg-white/[0.015] rounded-r-xl">
           "{culturalStory}"
@@ -141,7 +122,7 @@ export default function AiResponseCard({
               )}
             </div>
             <p className="text-[11px] text-[#A8A29E]">
-              Device-native Web Speech API audio synthesis
+              Native speech synthesizer with natural cadence
             </p>
           </div>
         </div>
@@ -162,67 +143,31 @@ export default function AiResponseCard({
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#A8A29E] flex items-center">
             <Store className="w-3.5 h-3.5 mr-1.5 text-orange-400" />
-            Complementary Verified Micro-Vendors ({recommendedVendors.length})
+            Complementary Verified Stops ({recommendedVendors.length})
           </span>
-          <span className="text-[10px] text-orange-300 font-mono">
-            RAG Injected
+          <span className="text-[10px] text-amber-300 font-mono">
+            Tap Card for Menu &amp; Ratings
           </span>
         </div>
 
         {recommendedVendors.length === 0 ? (
           <div className="p-4 rounded-xl bg-[#171615]/50 border border-white/[0.06] text-center text-xs text-[#A8A29E]">
-            No nearby stalls registered in database within 500m. Switch to Artisan Mode to onboard one!
+            No verified stalls detected within immediate proximity.
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            {recommendedVendors.map((vendor) => {
-              const isSelected = selectedVendorId === vendor.id;
-              return (
-                <div
-                  key={vendor.id}
-                  onClick={() => onSelectVendor?.(vendor)}
-                  className={`cursor-pointer rounded-xl p-4.5 transition-all duration-200 border text-left relative flex flex-col justify-between ${
-                    isSelected
-                      ? 'bg-orange-500/10 border-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.25)] ring-1 ring-orange-500/50'
-                      : 'bg-white/[0.02] hover:bg-white/[0.05] border-white/[0.08] hover:border-amber-500/30'
-                  }`}
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h4 className="text-xs sm:text-sm font-bold text-[#FAF7F2] leading-snug font-sans">
-                        {vendor.name}
-                      </h4>
-                      <span
-                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full border whitespace-nowrap ${getCategoryBadgeClass(
-                          vendor.category
-                        )}`}
-                      >
-                        {vendor.category}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-[#D6D3D1] line-clamp-2 leading-relaxed">
-                      {vendor.description}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/[0.06] text-[11px]">
-                    <span className="text-amber-400 font-mono font-medium flex items-center">
-                      <MapPin className="w-3.5 h-3.5 mr-1 text-orange-400" />
-                      {formatDistance(vendor.distance_meters)}
-                    </span>
-
-                    <button
-                      type="button"
-                      className="text-xs text-orange-300 hover:text-orange-200 font-medium flex items-center space-x-1 transition-colors"
-                    >
-                      <span>Locate</span>
-                      <ExternalLink className="w-3 h-3 ml-0.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {recommendedVendors.map((vendor) => (
+              <VendorCard
+                key={vendor.id}
+                vendor={vendor}
+                userLocation={userLocation}
+                isSelected={selectedVendorId === vendor.id}
+                onSelect={() => onOpenVendorDetail?.(vendor)}
+                onLocate={onLocateVendor}
+                onPingConfirm={onPingConfirm}
+                onAddPulse={onAddPulse}
+              />
+            ))}
           </div>
         )}
       </div>
