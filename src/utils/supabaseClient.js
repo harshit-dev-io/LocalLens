@@ -20,8 +20,12 @@ export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null;
 
+// Track schema state to prevent repetitive 404 console spam
+let isSchemaCacheMissing = false;
+let hasLoggedSchemaWarning = false;
+
 // Initial high-fidelity seed vendors for Hackathon Demo & Offline evaluation
-const INITIAL_DEMO_VENDORS = [
+export const DEFAULT_VENDORS = [
   // Demo Cluster A: Rules.md GPS Coords (30.1337, 77.3000)
   {
     id: 'f2b20001-0000-4000-b000-000000000001',
@@ -100,6 +104,7 @@ const LOCAL_STORAGE_KEY = 'LOCALLENS_CUSTOM_VENDORS';
 
 /**
  * Fetch all vendors from Supabase or fallback mock storage
+ * Quietly catches 404 schema cache errors to prevent console spam.
  * @returns {Promise<Array>}
  */
 export async function fetchVendors() {
@@ -108,7 +113,12 @@ export async function fetchVendors() {
     const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
     if (raw) customVendors = JSON.parse(raw);
   } catch (err) {
-    console.warn('Could not read custom vendors from localStorage:', err);
+    // Quiet handling
+  }
+
+  // If table is known to be missing from remote project, return mock directly
+  if (isSchemaCacheMissing) {
+    return [...customVendors, ...DEFAULT_VENDORS];
   }
 
   if (isSupabaseConfigured && supabase) {
@@ -119,20 +129,30 @@ export async function fetchVendors() {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.warn('Supabase query error, falling back to local dataset:', error.message);
-        return [...customVendors, ...INITIAL_DEMO_VENDORS];
+        // Quiet single notification for uninitialized Supabase projects
+        if (!hasLoggedSchemaWarning) {
+          hasLoggedSchemaWarning = true;
+          isSchemaCacheMissing = true;
+          console.info(
+            "LocalLens V2 Data Layer: 'public.vendors' table not initialized in remote Supabase schema cache. Seamlessly using verified offline dataset. (Run supabase/schema.sql in your Supabase SQL editor to sync live database)"
+          );
+        }
+        return [...customVendors, ...DEFAULT_VENDORS];
       }
 
       if (data && data.length > 0) {
-        // Return supabase records + any local test additions
         return [...customVendors, ...data];
       }
     } catch (err) {
-      console.warn('Supabase fetch exception, falling back:', err);
+      if (!hasLoggedSchemaWarning) {
+        hasLoggedSchemaWarning = true;
+        isSchemaCacheMissing = true;
+        console.info('LocalLens V2: Supabase connection unavailable, using offline dataset.');
+      }
     }
   }
 
-  return [...customVendors, ...INITIAL_DEMO_VENDORS];
+  return [...customVendors, ...DEFAULT_VENDORS];
 }
 
 /**
@@ -152,7 +172,7 @@ export async function insertVendor(vendor) {
     created_at: new Date().toISOString(),
   };
 
-  if (isSupabaseConfigured && supabase) {
+  if (isSupabaseConfigured && supabase && !isSchemaCacheMissing) {
     try {
       const { data, error } = await supabase
         .from('vendors')
@@ -172,9 +192,8 @@ export async function insertVendor(vendor) {
       if (!error && data) {
         return { success: true, vendor: data };
       }
-      console.warn('Supabase insert warning, saving locally:', error?.message);
     } catch (err) {
-      console.warn('Supabase insert exception:', err);
+      // Fall through to local persistence
     }
   }
 

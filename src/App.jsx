@@ -106,26 +106,31 @@ export default function App() {
   }, [userLocation, allVendors]);
 
   // 4. Tourist Mode Pipeline: Handle image capture & run Gemini Mini-RAG synthesis
-  const handleImageCaptured = async ({ base64, dataUrl, sizeKB }) => {
+  const handleImageCaptured = async ({ base64, dataUrl, sizeKB, isCalibratedDemo = false }) => {
     setCapturedImage({ base64, dataUrl, sizeKB });
     setIsAnalyzing(true);
     setPipelineError(null);
     setAiResult(null);
 
-    const lat = userLocation?.lat || DEMO_COORDINATES.lat;
-    const lng = userLocation?.lng || DEMO_COORDINATES.lng;
+    // If calibrated demo was triggered, ensure demo coordinates are active
+    if (isCalibratedDemo) {
+      setUserLocation(DEMO_COORDINATES);
+    }
+
+    const lat = isCalibratedDemo ? DEMO_COORDINATES.lat : (userLocation?.lat || DEMO_COORDINATES.lat);
+    const lng = isCalibratedDemo ? DEMO_COORDINATES.lng : (userLocation?.lng || DEMO_COORDINATES.lng);
 
     // Compute current nearby vendors for this location
     const currentNearby = filterVendorsWithinRadius(allVendors, lat, lng, 500);
 
     try {
-      // Execute Mini-RAG synthesis with Gemini 2.5 Flash
+      // Execute Mini-RAG synthesis with Gemini
       const result = await generateCulturalContext({
         base64Image: base64,
         latitude: lat,
         longitude: lng,
         nearbyVendors: currentNearby,
-        isDemo: isDemoMode,
+        isDemo: isDemoMode || isCalibratedDemo,
       });
 
       // Match returned vendor IDs with actual vendor objects from our grounded database
@@ -140,7 +145,7 @@ export default function App() {
         context: result.context,
         recommendedVendors: finalVendors,
         groundedVendorsCount: currentNearby.length,
-        isFallback: result.is_fallback,
+        isFallback: result.isFallback || result.is_fallback,
       });
 
       // Automatically focus first recommended vendor on map
