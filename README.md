@@ -96,10 +96,10 @@ flowchart TD
 | Layer | Technology | Purpose |
 | :--- | :--- | :--- |
 | **Frontend Framework** | **React 18 + Vite** | Blazing-fast HMR, sub-second production builds, modular JSX architecture. |
-| **Styling & UI** | **Tailwind CSS + Glassmorphism** | Ambient frosted glass, backdrop blur, responsive mobile-first PWA layout. |
+| **Styling & UI** | **Tailwind CSS + Glassmorphism** | Claude-style warm charcoal canvas (`#0D0D0C`), terracotta & amber accents, ambient radial glows, and frosted glass. |
 | **Multimodal AI** | **Google Gemini 2.5 Flash** | Sub-second visual analysis, cultural narration, and structured JSON output. |
 | **Database & Backend** | **Supabase (PostgreSQL)** | RLS-secured geospatial catalog with high-speed coordinate queries. |
-| **Mapping Engine** | **Leaflet.js + CartoDB** | Lightweight interactive maps with custom SVG DivIcon markers and route polylines. |
+| **Mapping Engine** | **Leaflet.js + OpenStreetMap** | Public OSM tiles with custom warm-charcoal CSS filter (zero API watermarks), custom SVG DivIcons & walking routes. |
 | **Image Compression** | **HTML5 Canvas API** | In-browser downscaling reducing 4MB-12MB camera shots to `< 100KB` in <50ms. |
 | **Audio Guide** | **Web Speech API** | Zero-latency native text-to-speech narration with play/pause/soundwave feedback. |
 | **Icons & Assets** | **Lucide React** | Crisp, lightweight icons for modern mobile ergonomics. |

@@ -10,15 +10,10 @@ import { filterVendorsWithinRadius } from './utils/haversine';
 import { generateCulturalContext } from './utils/gemini';
 import { fetchVendors } from './utils/supabaseClient';
 import {
-  Sparkles,
-  MapPin,
-  Compass,
   AlertCircle,
   RefreshCw,
   Layers,
-  CheckCircle,
-  HelpCircle,
-  Store,
+  Sparkles,
 } from 'lucide-react';
 
 // Hardcoded coordinates mandated by rules.md for indoor hackathon demo resilience
@@ -57,7 +52,7 @@ export default function App() {
     }
 
     if (!navigator.geolocation) {
-      setGeoError('Geolocation is not supported by your browser. Using demo coordinates.');
+      setGeoError('Geolocation is not supported by your browser. Using calibrated coordinates.');
       setUserLocation(DEMO_COORDINATES);
       return;
     }
@@ -120,7 +115,7 @@ export default function App() {
     const lat = userLocation?.lat || DEMO_COORDINATES.lat;
     const lng = userLocation?.lng || DEMO_COORDINATES.lng;
 
-    // Ensure we compute current nearby vendors for this location
+    // Compute current nearby vendors for this location
     const currentNearby = filterVendorsWithinRadius(allVendors, lat, lng, 500);
 
     try {
@@ -167,7 +162,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-900 text-slate-100 flex flex-col antialiased selection:bg-brand-500/30 selection:text-brand-300">
+    <div className="min-h-screen bg-[#0D0D0C] text-[#FAF7F2] flex flex-col antialiased selection:bg-amber-500/30 selection:text-amber-200">
       {/* Top Glassmorphic Navigation Bar */}
       <Header
         isDemoMode={isDemoMode}
@@ -179,38 +174,38 @@ export default function App() {
       />
 
       {/* Main Content Viewport */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6 relative z-10">
         {/* Geolocation Status Alert if GPS drifted */}
         {geoError && (
-          <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-center justify-between shadow-glass">
-            <div className="flex items-center space-x-2">
+          <div className="p-3.5 rounded-xl bg-orange-950/30 border border-orange-500/25 text-orange-200 text-xs flex items-center justify-between shadow-[0_4px_16px_rgba(0,0,0,0.3)]">
+            <div className="flex items-center space-x-2.5">
               <AlertCircle className="w-4 h-4 flex-shrink-0 text-amber-400" />
               <span>{geoError}</span>
             </div>
             <button
               onClick={resolveLocation}
-              className="text-[11px] underline underline-offset-4 hover:text-white flex items-center font-medium"
+              className="text-[11px] underline underline-offset-4 hover:text-white flex items-center font-medium transition-colors"
             >
               <RefreshCw className="w-3 h-3 mr-1" /> Retry GPS
             </button>
           </div>
         )}
 
-        {/* Demo Mode Notice Banner */}
+        {/* Demo Mode Notice Banner (Warm Claude Editorial Styling) */}
         {isDemoMode && (
-          <div className="p-3 rounded-xl bg-dark-800/80 border border-amber-500/30 text-xs text-slate-300 flex items-center justify-between backdrop-blur-md">
-            <div className="flex items-center space-x-2">
+          <div className="p-3 rounded-xl bg-[#171615]/80 border border-amber-500/25 text-xs text-[#D6D3D1] flex items-center justify-between backdrop-blur-md shadow-sm">
+            <div className="flex items-center space-x-2.5">
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-              <span className="font-semibold text-amber-300">Judge-Proof Demo Mode Active:</span>
-              <span className="hidden sm:inline text-slate-400">
-                Fixed at GPS [{DEMO_COORDINATES.lat}, {DEMO_COORDINATES.lng}] with preloaded street bazaar scene.
+              <span className="font-semibold text-amber-300 font-sans">Judge Demo Mode Active:</span>
+              <span className="hidden sm:inline text-[#A8A29E]">
+                Fixed at GPS [{DEMO_COORDINATES.lat}, {DEMO_COORDINATES.lng}] with calibrated street bazaar scene.
               </span>
             </div>
             <button
               onClick={() => setIsDemoMode(false)}
-              className="text-[11px] text-amber-400 hover:text-amber-300 font-mono underline"
+              className="text-[11px] text-orange-400 hover:text-orange-300 font-mono underline transition-colors"
             >
-              Switch to Live GPS
+              Switch to Live Hardware
             </button>
           </div>
         )}
@@ -232,15 +227,15 @@ export default function App() {
 
             {/* Error Banner */}
             {pipelineError && (
-              <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs space-y-2">
+              <div className="p-4 rounded-2xl bg-orange-950/40 border border-orange-500/30 text-orange-200 text-xs space-y-2">
                 <div className="flex items-center space-x-2 font-semibold">
-                  <AlertCircle className="w-4 h-4" />
+                  <AlertCircle className="w-4 h-4 text-orange-400" />
                   <span>Pipeline Synthesis Interrupted</span>
                 </div>
-                <p className="text-slate-400">{pipelineError}</p>
+                <p className="text-[#D6D3D1]">{pipelineError}</p>
                 <button
                   onClick={() => handleImageCaptured(capturedImage)}
-                  className="px-3 py-1.5 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-xs font-medium"
+                  className="px-3 py-1.5 rounded-lg bg-orange-600/30 hover:bg-orange-600/40 text-orange-200 text-xs font-medium transition-colors"
                 >
                   Retry Synthesis
                 </button>
@@ -271,30 +266,30 @@ export default function App() {
               onSelectVendor={(v) => setSelectedVendor(v)}
             />
 
-            {/* Verified Nearby Micro-Vendors Telemetry Shelf */}
-            <div className="rounded-2xl bg-dark-800/80 backdrop-blur-xl border border-white/10 p-5 shadow-glass space-y-4">
+            {/* Verified Nearby Micro-Vendors Telemetry Shelf (Warm Glass) */}
+            <div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] shadow-[0_8px_32px_0_rgba(0,0,0,0.36)] rounded-2xl p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2.5 rounded-xl bg-orange-500/10 border border-orange-500/25 text-orange-400">
                     <Layers className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-white">
+                    <h3 className="text-sm font-bold text-[#FAF7F2] font-sans">
                       Verified Micro-Vendors Within 500m
                     </h3>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-[#A8A29E]">
                       Grounded in Supabase PostgreSQL Directory
                     </p>
                   </div>
                 </div>
 
-                <span className="text-xs font-mono px-2.5 py-1 rounded-full bg-dark-900 border border-white/10 text-brand-300">
+                <span className="text-xs font-mono px-3 py-1 rounded-full bg-[#171615] border border-white/[0.08] text-orange-300">
                   {nearbyVendors.length} Stalls Nearby
                 </span>
               </div>
 
               {/* Vendor List Scroll Area */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-72 overflow-y-auto pr-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-72 overflow-y-auto pr-1">
                 {nearbyVendors.map((vendor) => {
                   const isSelected = selectedVendor?.id === vendor.id;
                   const isRecommended = aiResult?.recommendedVendors?.some((v) => v.id === vendor.id);
@@ -303,34 +298,34 @@ export default function App() {
                     <div
                       key={vendor.id}
                       onClick={() => setSelectedVendor(vendor)}
-                      className={`cursor-pointer p-3.5 rounded-xl border text-left transition-all ${
+                      className={`cursor-pointer p-4 rounded-xl border text-left transition-all duration-200 ${
                         isSelected
-                          ? 'bg-brand-500/15 border-brand-500 shadow-card-glow'
+                          ? 'bg-orange-500/15 border-orange-500 shadow-[0_0_20px_rgba(234,88,12,0.25)] ring-1 ring-orange-500/50'
                           : isRecommended
-                          ? 'bg-brand-500/5 border-brand-500/40 hover:border-brand-500/60'
-                          : 'bg-dark-900/40 hover:bg-dark-900/80 border-white/5 hover:border-white/15'
+                          ? 'bg-orange-500/[0.04] border-orange-500/40 hover:border-orange-500/60'
+                          : 'bg-white/[0.02] hover:bg-white/[0.05] border-white/[0.06] hover:border-amber-500/25'
                       }`}
                     >
-                      <div className="flex items-start justify-between gap-1 mb-1">
-                        <span className="text-xs font-bold text-white leading-tight">
+                      <div className="flex items-start justify-between gap-1 mb-1.5">
+                        <span className="text-xs font-bold text-[#FAF7F2] leading-tight font-sans">
                           {vendor.name}
                         </span>
                         {isRecommended && (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30 font-semibold whitespace-nowrap">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-orange-500/20 text-orange-300 border border-orange-500/30 font-semibold whitespace-nowrap">
                             AI Pick
                           </span>
                         )}
                       </div>
 
-                      <p className="text-[11px] text-slate-400 line-clamp-2 mb-2">
+                      <p className="text-[11px] text-[#A8A29E] line-clamp-2 mb-2.5 leading-relaxed">
                         {vendor.description}
                       </p>
 
-                      <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1.5 border-t border-white/5">
-                        <span className="text-cyan-400 font-mono">
+                      <div className="flex items-center justify-between text-[11px] text-[#78716C] pt-2 border-t border-white/[0.06]">
+                        <span className="text-amber-400 font-mono font-medium">
                           {vendor.distance_meters != null ? `${vendor.distance_meters}m away` : '500m zone'}
                         </span>
-                        <span className="text-slate-400 font-medium">
+                        <span className="text-[#D6D3D1] font-medium text-[10px]">
                           {vendor.category}
                         </span>
                       </div>
@@ -358,8 +353,8 @@ export default function App() {
         onClose={() => setIsKeyModalOpen(false)}
       />
 
-      {/* Footer Branding & Hackathon Attribution */}
-      <footer className="border-t border-white/5 py-4 px-6 text-center text-xs text-slate-500 backdrop-blur-md bg-dark-900/50">
+      {/* Footer Branding (Warm Ambient Glass) */}
+      <footer className="border-t border-white/[0.06] py-4 px-6 text-center text-xs text-[#78716C] backdrop-blur-md bg-[#121110]/50 relative z-10">
         <p>
           LocalLens V2 &bull; Two-Sided Hyper-Local Context Engine &bull; Built with React, Supabase &amp; Gemini 2.5 Flash
         </p>
